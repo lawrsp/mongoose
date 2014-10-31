@@ -120,7 +120,11 @@ describe('model: populate:', function(){
           assert.ok(post._creator instanceof User);
           assert.equal(post._creator.name, 'Guillermo');
           assert.equal(post._creator.email, 'rauchg@gmail.com');
-          done();
+          post.save(function(error, post) {
+            assert.ifError(error);
+            assert.equal(undefined, post._creator.name);
+            done();
+          });
         });
       });
     });
