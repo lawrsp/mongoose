@@ -114,16 +114,25 @@ describe('model: populate:', function(){
         .findById(post._id)
         .populate('_creator')
         .exec(function (err, post) {
-          db.close();
           assert.ifError(err);
 
           assert.ok(post._creator instanceof User);
           assert.equal(post._creator.name, 'Guillermo');
           assert.equal(post._creator.email, 'rauchg@gmail.com');
-          post.save(function(error, post) {
+          post._creator.name = 'Val';
+          post._creator.email = 'valkar207@gmail.com';
+          post.save(function(error) {
             assert.ifError(error);
-            assert.equal(undefined, post._creator.name);
-            done();
+            BlogPost.findOne({ _id: post._id }, function(err, postSaved) {
+              assert.ifError(err);
+              assert.equal(undefined, postSaved._creator.name);
+              User.findOne({ _id: creator._id}, function(error, user) {
+                assert.ifError(error);
+                assert.equal('Val', user.name);
+                db.close();
+                done();
+              });
+            });
           });
         });
       });
